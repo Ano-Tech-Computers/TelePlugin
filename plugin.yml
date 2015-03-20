@@ -1,0 +1,56 @@
+name: TelePlugin
+main: no.atc.floyd.bukkit.tele.TelePlugin
+version: 1.93
+website: http://minecraft.atc.no/plugins
+author: FloydATC
+depend: [WorldGuard]
+description: >
+        Basic teleport commands
+commands:
+  tp:
+    description: Teleport yourself to a named player
+    usage: /<command> <to_player>|<<x> <z> [world]> [--force]
+    permission: teleplugin.tp
+  tpa:
+    description: Ask to teleport yourself to a named player
+    usage: /<command> <to_player>
+    permission: teleplugin.tpa
+  tpy:
+    description: Permit named player to teleport himself to you
+    usage: /<command> <player> 
+    permission: teleplugin.tpa
+  tpn:
+    description: Deny named player to teleport himself to you
+    usage: /<command> <player>
+    permission: teleplugin.tpa
+  tphelp:
+    description: Brief explanation of tpa/tpy/tpn commands
+    usage: |
+           /<command>
+  tphere:
+    description: Teleport one or more players to yourself
+    usage: |
+           /<command> <player> [<player2>] ... [<playerN>] [--force]
+    permission: teleplugin.tphere
+  tpto:
+    description: Teleports one or more players to another player
+    usage: |
+           /<command> <player> [<player2>] ... [<player>]<to_player> [--force]
+    permission: teleplugin.tpto
+  tpback:
+    description: Teleports you back N minutes or to a specific time
+    usage: /<command> <minutes>|<hh:mm> [<player>] [--force]
+    permission: teleplugin.tpback
+  warp:
+    description: Teleport yourself to a named location
+    usage: /<command> <location> [--force|<player> [...]]
+  setwarp:
+    description: Define a new named location
+    usage: /<command> <location>
+  delwarp:
+    description: Delete a named location
+    usage: /<command> <location>
+  movewarp:
+    description: Redefine an existing named location
+    usage: /<command> <location>
+
