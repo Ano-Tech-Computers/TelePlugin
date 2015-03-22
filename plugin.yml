@@ -1,6 +1,6 @@
 name: TelePlugin
 main: no.atc.floyd.bukkit.tele.TelePlugin
-version: 1.93
+version: 1.94
 website: http://minecraft.atc.no/plugins
 author: FloydATC
 depend: [WorldGuard]
