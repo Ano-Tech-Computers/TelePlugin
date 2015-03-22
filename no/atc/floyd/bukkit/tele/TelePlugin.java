@@ -44,14 +44,14 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 */
 public class TelePlugin extends JavaPlugin implements Listener {
     //public static Permissions Permissions = null;
-    
-	private File req_dir = new File("plugins/TelePlugin/requests"); 
-	private File loc_dir = new File("plugins/TelePlugin/locations"); 
+
+	private File req_dir = new File("plugins/TelePlugin/requests");
+	private File loc_dir = new File("plugins/TelePlugin/locations");
 	private final long cooldown = 86400 * 1000; // Milliseconds
-	private ConcurrentHashMap<String,ConcurrentHashMap<Integer,Location>> locs = new ConcurrentHashMap<String,ConcurrentHashMap<Integer,Location>>(); 
+	private ConcurrentHashMap<String,ConcurrentHashMap<Integer,Location>> locs = new ConcurrentHashMap<String,ConcurrentHashMap<Integer,Location>>();
     private Integer max_tpback = 1440; // Number of MINUTES to keep
     WorldGuardPlugin worldguard = null;
-	
+
 
     public void onDisable() {
     	for (String pname : locs.keySet()) {
@@ -60,7 +60,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     }
 
     public void onEnable() {
-    	// Set up directory for request, denial and permission tokens. 
+    	// Set up directory for request, denial and permission tokens.
     	// Clear out any stale files (i.e. older than cooldown)
     	if (req_dir.exists() == false) { req_dir.mkdirs(); }
     	File[] files = req_dir.listFiles();
@@ -70,19 +70,19 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			files[i].delete();
     		}
     	}
-    	
+
     	// Set up directory for player location data (used for /tpback)
     	if (loc_dir.exists() == false) { loc_dir.mkdirs(); }
-    	
+
     	// WorldGuard integration
     	Plugin wg = getServer().getPluginManager().getPlugin("WorldGuard");
     	if (wg == null || !(wg instanceof WorldGuardPlugin)) {
     		getLogger().info("WorldGuard not loaded, will not detect PVP regions");
     	} else {
-    		worldguard = (WorldGuardPlugin) wg; 
+    		worldguard = (WorldGuardPlugin) wg;
     		getLogger().info("Using WorldGuard to detect PVP regions");
     	}
-    	
+
     	// Register event handlers
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(this, this);
@@ -95,7 +95,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
         	player = (Player) sender;
             //getLogger().info("player="+player+" cmd="+cmdname+" args="+Arrays.toString(args));
         }
-        
+
         // See if any options were specified
         Boolean force = false;
         Integer options = numOptions(args);
@@ -116,7 +116,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
         	getLogger().info("done revising argument list");
             args = revised_args;
         }
-        
+
     	if (cmdname.equalsIgnoreCase("tp") && player != null && player.hasPermission("teleplugin.tp")) {
     		if (args.length == 0 || args.length > 3) {
     			player.sendMessage("§7[§6TP§7]§b Valid syntax:");
@@ -255,7 +255,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			} else {
 					player.sendMessage("§7[§6TP§7]§c Could not grant teleport permission to §6" + args[0] + "§c at this time");
     			}
-    			
+
     			if (has_request(args[0], player.getName()) && has_permission(args[0], player.getName())) {
 	    			if (teleport(args[0], player.getName(), force)) {
 	    				getLogger().info(args[0] + " teleported to " + player.getName() );
@@ -370,7 +370,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 				if (args[0].matches("^[0-2][0-9]:[0-5][0-9]$")) {
 					args[0] = time_to_delta(args[0]);
 				}
-				
+
 				// The argument should now be an integer
     			try {
     				delta = Integer.valueOf(args[0]);
@@ -437,10 +437,10 @@ public class TelePlugin extends JavaPlugin implements Listener {
     				}
     			}
 				return true;
-    			
+
     		}
     	}
-    	
+
     	if (cmdname.equalsIgnoreCase("warp")) {
     		if (args.length == 0) {
     			respond(player, "§7[§6TP§7]§b Syntax:");
@@ -493,11 +493,11 @@ public class TelePlugin extends JavaPlugin implements Listener {
     		} else {
     			respond(player, "§7[§6TP§7]§c Warp point '"+args[0]+"' not found");
     		}
-    		
+
     		return true;
     	}
-    	
-    	
+
+
     	if (cmdname.equalsIgnoreCase("setwarp")) {
     		if (args.length == 0 || args.length > 1) {
     			respond(player, "§7[§6TP§7]§b Syntax:");
@@ -527,8 +527,8 @@ public class TelePlugin extends JavaPlugin implements Listener {
     		}
     		return true;
     	}
-    	
-    	
+
+
     	if (cmdname.equalsIgnoreCase("delwarp")) {
     		if (args.length == 0 || args.length > 1) {
     			respond(player, "§7[§6TP§7]§b Syntax:");
@@ -550,8 +550,8 @@ public class TelePlugin extends JavaPlugin implements Listener {
     		}
     		return true;
     	}
-    	
-    	
+
+
     	if (cmdname.equalsIgnoreCase("movewarp")) {
     		if (args.length == 0 || args.length > 1) {
     			respond(player, "§7[§6TP§7]§b Syntax:");
@@ -581,8 +581,100 @@ public class TelePlugin extends JavaPlugin implements Listener {
     		}
     		return true;
     	}
-    	
-    	
+
+
+      if (cmdname.equalsIgnoreCase("listwarps"))
+      {
+        if (args.length > 2)
+        {
+          respond(player, "§7[§6TP§7]§b Syntax:");
+          respond(player, "§7[§6TP§7]§b /listwarps [<player>] [<page>]");
+          return true;
+        }
+
+        // Parse arguments
+        String owner = null;
+        int page = 0;
+        if (args.length >= 1)
+        {
+          if (Character.isDigit(args[0].charAt(0)))
+          {
+            try {
+              page = Integer.parseInt(args[0]) - 1;
+            }
+            catch (NumberFormatException e) {
+              player.sendMessage("§7[§6TP§7]§c Expected a number");
+              //e.printStackTrace();
+              return false;
+            }
+            page = Integer.parseInt(args[0])
+          }
+          else if (args[0].equals("."))
+          {
+            owner = player.getName();
+          }
+          else
+          {
+            owner = args[0];
+          }
+        }
+
+        if (page < 0) page = 0;
+
+        // Check permissions
+        if (owner == null)
+        {
+          if (!player.hasPermission("teleplugin.listwarps.global"))
+          {
+            getLogger().warning(player.getName() + " was not permitted to list global warp points");
+            respond(player, "§7[§6TP§7]§c You don't have permission to list these warp points");
+          }
+        }
+        else if (owner.equalsIgnoreCase(player.getName()))
+        {
+          if (!player.hasPermission("teleplugin.listwarps.own"))
+          {
+            getLogger().warning(player.getName() + " was not permitted to list own warp points");
+            respond(player, "§7[§6TP§7]§c You don't have permission to list these warp points");
+          }
+        }
+        else
+        {
+          if (!player.hasPermission("teleplugin.listwarps.other"))
+          {
+            getLogger().warning(player.getName() + " was not permitted to list " + owner + "'s warp points");
+            respond(player, "§7[§6TP§7]§c You don't have permission to list these warp points");
+          }
+        }
+
+        File dir = new File(this.getDataFolder() + "/warps/");
+        if (owner != null)
+          dir = new File(dir, owner + "/");
+
+        // List all files ending with ".loc"
+        String[] warps = dir.list(new FilenameFilter()
+        {
+          @Override
+          public boolean accept(File dir, String name)
+          {
+            return new File(dir, name).isFile() && name.toLowerCase().endsWith(".loc");
+          }
+        });
+
+        int pageCount = (int) Math.ceil(warps.length/10f);
+        respond(player, "§7[§6TP§7]§b Warps (page " + page + " of " + pageCount + "):");
+
+        int startIndex = page * 10;
+        for (int i = startIndex; i < startIndex + 10 && i < warps.length; i++)
+          respond(player, "§7[§6TP§7]§9   " + warps[i]);
+
+        return true;
+      }
+
+
+      return false;
+    }
+
     	return false;
     }
 
@@ -649,9 +741,9 @@ public class TelePlugin extends JavaPlugin implements Listener {
         	return;
     	}
     	return;
-    }    
+    }
 
-    
+
     private boolean teleport(String subject, String destination, Boolean force) {
     	Player subj = getServer().getPlayer(subject);
     	Player dest = getServer().getPlayer(destination);
@@ -678,11 +770,11 @@ public class TelePlugin extends JavaPlugin implements Listener {
     		return false;
     	}
     }
-    
+
     private boolean request_permission(String subject, String destination) {
     	File f = null;
     	long now = System.currentTimeMillis();
-    	
+
     	// Requesting permission to self? Go away.
     	if (subject.equalsIgnoreCase(destination)) {
     		return false;
@@ -717,11 +809,11 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
     private boolean cancel_request(String subject, String destination) {
     	File f = null;
-    	
+
     	// Create request token
 		f = new File(req_dir.getPath() + "/" + subject + "-to-" + destination + ".requested");
     	f.delete();
-    	
+
     	return true;
     }
 
@@ -733,7 +825,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	if (subject.equalsIgnoreCase(destination)) {
     		return false;
     	}
-    	
+
     	// Delete denial token, if any
     	f = new File(req_dir.getPath() + "/" + destination + "-to-" + subject + ".denied");
     	f.delete();
@@ -753,7 +845,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 				try {
 					f.createNewFile();
 		    		p.sendMessage("§7[§6TP§7]§b §6" + subject + "§b has granted you /tpa permission (See '/tphelp')");
-		    		
+
 				} catch (IOException e) {
 					e.printStackTrace();
 					getLogger().warning("Unexpected error creating "+f.getName()+": "+e.getLocalizedMessage());
@@ -769,7 +861,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     private boolean deny_permission(String subject, String destination) {
     	File f = null;
     	long now = System.currentTimeMillis();
-    	
+
     	// Denying permission to self? Go away.
     	if (subject.equalsIgnoreCase(destination)) {
     		return false;
@@ -809,7 +901,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     private boolean has_denial(String subject, String destination) {
     	File f = null;
     	long now = System.currentTimeMillis();
-    	
+
     	// Checking permission to self? Go away.
     	if (subject.equalsIgnoreCase(destination)) {
     		return false;
@@ -827,7 +919,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     private boolean has_permission(String subject, String destination) {
     	File f = null;
     	long now = System.currentTimeMillis();
-    	
+
     	// Checking permission to self? Go away.
     	if (subject.equalsIgnoreCase(destination)) {
     		return false;
@@ -845,7 +937,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     private boolean has_request(String subject, String destination) {
     	File f = null;
     	long now = System.currentTimeMillis();
-    	
+
     	// Checking for request to self? Go away.
     	if (subject.equalsIgnoreCase(destination)) {
     		return false;
@@ -863,7 +955,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     private Integer getUnixtime() {
     	return (int) (System.currentTimeMillis() / 1000L);
     }
-    
+
 	private void registerLocation(String pname, Location loc) {
     	Integer minute_now = (getUnixtime() / 60);
     	Integer minute_limit = minute_now - max_tpback;
@@ -873,7 +965,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     		playerlocs = loadLocations(pname);
     		locs.put(pname, playerlocs);
     	}
-    	// Unless already done this minute, record current location 
+    	// Unless already done this minute, record current location
     	playerlocs.putIfAbsent(minute_now, loc);
     	// Purge data older than 1 hour
     	for (Integer minute : playerlocs.keySet()) {
@@ -883,7 +975,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     		playerlocs.remove(minute);
     	}
     }
-    
+
     private Location getLocation(String pname, Integer delta) {
     	Location loc = null;
     	Integer minute_now = (getUnixtime() / 60) - delta;
@@ -907,7 +999,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
     	return loc;
     }
-    
+
     private Integer getOldestDelta(String pname) {
     	// Fetch this player's location table
     	ConcurrentHashMap<Integer,Location> playerlocs = locs.get(pname);
@@ -923,7 +1015,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
     	return null; // Unreachable
     }
-    
+
     private ConcurrentHashMap<Integer,Location> loadLocations(String pname) {
     	Integer minute_now = (getUnixtime() / 60);
     	Integer minute_limit = minute_now - max_tpback;
@@ -975,7 +1067,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
         }
     	return playerlocs;
     }
-    
+
     private void saveLocations(String pname) {
 		ConcurrentHashMap<Integer,Location> playerlocs = locs.get(pname);
 		if (playerlocs == null) {
@@ -1003,7 +1095,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 			e.printStackTrace();
 		}
     }
-    
+
 	private boolean safeTeleport(Player player, Location location, Boolean force) {
 		if (location == null) {
 			player.sendMessage("§7[§6TP§7]§c Invalid location");
@@ -1014,7 +1106,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 		Integer z = location.getBlockZ();
 		Block b = null;
 		World world = location.getWorld();
-		if (y < world.getMaxHeight()) { y++; } 
+		if (y < world.getMaxHeight()) { y++; }
 		Integer needAir = 2;
 		Boolean danger = false;
 		for (Integer check = y; check >= 0; check--) {
@@ -1058,7 +1150,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 		}
 		return false;
 	}
-	
+
 	private boolean isAir(Integer type) {
 		if (type == 0)   { return true; }	// Air
         if (type == 1)   { return false; }   // Rock
@@ -1073,104 +1165,104 @@ public class TelePlugin extends JavaPlugin implements Listener {
         if (type == 11)  { return false; }   // Lava
         if (type == 12)  { return false; }   // Sand
         if (type == 13)  { return false; }   // Gravel
-        if (type == 14)  { return false; }   // Gold ore 
-        if (type == 15)  { return false; }   // Iron ore 
-        if (type == 16)  { return false; }   // Coal ore 
-        if (type == 17)  { return false; }   // Tree 
-        if (type == 18)  { return false; }   // Leaves 
-        if (type == 19)  { return false; }   // Sponge 
-        if (type == 20)  { return false; }   // Glass 
-        if (type == 21)  { return false; }   // Blue ore 
-        if (type == 22)  { return false; }   // Blue block 
-        if (type == 23)  { return false; }   // Dispenser 
-        if (type == 24)  { return false; }   // Sandstone 
-        if (type == 25)  { return false; }   // Noteblock 
-        if (type == 29)  { return false; }   // Piston (sticky) 
-        if (type == 33)  { return false; }   // Piston 
-        if (type == 35)  { return false; }   // Wool 
-        if (type == 41)  { return false; }   // Gold 
-        if (type == 42)  { return false; }   // Iron 
-        if (type == 43)  { return false; }   // Doublestep 
-        if (type == 45)  { return false; }   // Brickwall 
-        if (type == 46)  { return false; }   // TNT 
+        if (type == 14)  { return false; }   // Gold ore
+        if (type == 15)  { return false; }   // Iron ore
+        if (type == 16)  { return false; }   // Coal ore
+        if (type == 17)  { return false; }   // Tree
+        if (type == 18)  { return false; }   // Leaves
+        if (type == 19)  { return false; }   // Sponge
+        if (type == 20)  { return false; }   // Glass
+        if (type == 21)  { return false; }   // Blue ore
+        if (type == 22)  { return false; }   // Blue block
+        if (type == 23)  { return false; }   // Dispenser
+        if (type == 24)  { return false; }   // Sandstone
+        if (type == 25)  { return false; }   // Noteblock
+        if (type == 29)  { return false; }   // Piston (sticky)
+        if (type == 33)  { return false; }   // Piston
+        if (type == 35)  { return false; }   // Wool
+        if (type == 41)  { return false; }   // Gold
+        if (type == 42)  { return false; }   // Iron
+        if (type == 43)  { return false; }   // Doublestep
+        if (type == 45)  { return false; }   // Brickwall
+        if (type == 46)  { return false; }   // TNT
         if (type == 47)  { return false; }   // Bookshelf
-        if (type == 48)  { return false; }   // Mossystone 
-        if (type == 49)  { return false; }   // Obsidian 
-        if (type == 52)  { return false; }   // Spawner 
-        if (type == 53)  { return false; }   // Steps 
-        if (type == 54)  { return false; }   // Chest 
-        if (type == 56)  { return false; }   // Diamond ore 
-        if (type == 57)  { return false; }   // Diamond block 
-        if (type == 58)  { return false; }   // Workbench 
-        if (type == 60)  { return false; }   // Dirt? 
-        if (type == 61)  { return false; }   // Oven 
-        if (type == 62)  { return false; }   // Oven, lit 
-        if (type == 67)  { return false; }   // Stonesteps 
-        if (type == 73)  { return false; }   // Redstone ore 
-        if (type == 79)  { return false; }   // Ice 
-        if (type == 80)  { return false; }   // Snow 
-        if (type == 81)  { return false; }   // Cactus 
-        if (type == 82)  { return false; }   // Clay 
-        if (type == 84)  { return false; }   // Jukebox 
-        if (type == 86)  { return false; }   // Pumpkin 
-        if (type == 87)  { return false; }   // Nether 
-        if (type == 88)  { return false; }   // Soulsand 
-        if (type == 89)  { return false; }   // Lightstone 
-        if (type == 90)  { return false; }   // Portalstuff? 
-        if (type == 91)  { return false; }   // Pumpkin lantern 
-        if (type == 95)  { return false; }   // Tinted glass 
-        if (type == 97)  { return false; }   // Stone 
-        if (type == 99)  { return false; }   // ? 
-        if (type == 100) { return false; }   // ? 
-        if (type == 103) { return false; }   // Melon 
-        if (type == 108) { return false; }   // Stairs 
-        if (type == 109) { return false; }   // Stairs 
-        if (type == 110) { return false; }   // Slow dirt 
-        if (type == 112) { return false; }   // ? 
-        if (type == 114) { return false; }   // Dark steps 
-        if (type == 116) { return false; }   // Altar 
-        if (type == 120) { return false; }   // Ender thingy 
-        if (type == 121) { return false; }   // ? 
-        if (type == 122) { return false; }   // ? 
-        if (type == 123) { return false; }   // Lamp 
-        if (type == 125) { return false; }   // Wood again 
-        if (type == 128) { return false; }   // More steps 
-        if (type == 129) { return false; }   // Ore 
-        if (type == 130) { return false; }   // Enderchest 
-        if (type == 133) { return false; }   // Green 
-        if (type == 134) { return false; }   // Steps 
-        if (type == 135) { return false; }   // Steps 
-        if (type == 136) { return false; }   // Steps 
-        if (type == 137) { return false; }   // Command block 
-        if (type == 138) { return false; }   // Display case 
-        if (type == 139) { return false; }   // Wall 
-        if (type == 145) { return false; }   // Anvil 
-        if (type == 146) { return false; }   // Chest 
-        if (type == 151) { return false; }   // Light detector 
-        if (type == 152) { return false; }   // Redstone block 
-        if (type == 153) { return false; }   // ? 
-        if (type == 154) { return false; }   // Funnel 
-        if (type == 155) { return false; }   // Quartz 
-        if (type == 156) { return false; }   // Quartz steps 
-        if (type == 158) { return false; }   // Dispenser 
-        if (type == 159) { return false; }   // Dried clay 
-        if (type == 160) { return false; }   // Window 
-        if (type == 161) { return false; }   // Leaves 
-        if (type == 162) { return false; }   // More tree 
-        if (type == 172) { return false; }   // ? 
-        if (type == 173) { return false; }   // ? 
-        if (type == 174) { return false; }   // ? 
+        if (type == 48)  { return false; }   // Mossystone
+        if (type == 49)  { return false; }   // Obsidian
+        if (type == 52)  { return false; }   // Spawner
+        if (type == 53)  { return false; }   // Steps
+        if (type == 54)  { return false; }   // Chest
+        if (type == 56)  { return false; }   // Diamond ore
+        if (type == 57)  { return false; }   // Diamond block
+        if (type == 58)  { return false; }   // Workbench
+        if (type == 60)  { return false; }   // Dirt?
+        if (type == 61)  { return false; }   // Oven
+        if (type == 62)  { return false; }   // Oven, lit
+        if (type == 67)  { return false; }   // Stonesteps
+        if (type == 73)  { return false; }   // Redstone ore
+        if (type == 79)  { return false; }   // Ice
+        if (type == 80)  { return false; }   // Snow
+        if (type == 81)  { return false; }   // Cactus
+        if (type == 82)  { return false; }   // Clay
+        if (type == 84)  { return false; }   // Jukebox
+        if (type == 86)  { return false; }   // Pumpkin
+        if (type == 87)  { return false; }   // Nether
+        if (type == 88)  { return false; }   // Soulsand
+        if (type == 89)  { return false; }   // Lightstone
+        if (type == 90)  { return false; }   // Portalstuff?
+        if (type == 91)  { return false; }   // Pumpkin lantern
+        if (type == 95)  { return false; }   // Tinted glass
+        if (type == 97)  { return false; }   // Stone
+        if (type == 99)  { return false; }   // ?
+        if (type == 100) { return false; }   // ?
+        if (type == 103) { return false; }   // Melon
+        if (type == 108) { return false; }   // Stairs
+        if (type == 109) { return false; }   // Stairs
+        if (type == 110) { return false; }   // Slow dirt
+        if (type == 112) { return false; }   // ?
+        if (type == 114) { return false; }   // Dark steps
+        if (type == 116) { return false; }   // Altar
+        if (type == 120) { return false; }   // Ender thingy
+        if (type == 121) { return false; }   // ?
+        if (type == 122) { return false; }   // ?
+        if (type == 123) { return false; }   // Lamp
+        if (type == 125) { return false; }   // Wood again
+        if (type == 128) { return false; }   // More steps
+        if (type == 129) { return false; }   // Ore
+        if (type == 130) { return false; }   // Enderchest
+        if (type == 133) { return false; }   // Green
+        if (type == 134) { return false; }   // Steps
+        if (type == 135) { return false; }   // Steps
+        if (type == 136) { return false; }   // Steps
+        if (type == 137) { return false; }   // Command block
+        if (type == 138) { return false; }   // Display case
+        if (type == 139) { return false; }   // Wall
+        if (type == 145) { return false; }   // Anvil
+        if (type == 146) { return false; }   // Chest
+        if (type == 151) { return false; }   // Light detector
+        if (type == 152) { return false; }   // Redstone block
+        if (type == 153) { return false; }   // ?
+        if (type == 154) { return false; }   // Funnel
+        if (type == 155) { return false; }   // Quartz
+        if (type == 156) { return false; }   // Quartz steps
+        if (type == 158) { return false; }   // Dispenser
+        if (type == 159) { return false; }   // Dried clay
+        if (type == 160) { return false; }   // Window
+        if (type == 161) { return false; }   // Leaves
+        if (type == 162) { return false; }   // More tree
+        if (type == 172) { return false; }   // ?
+        if (type == 173) { return false; }   // ?
+        if (type == 174) { return false; }   // ?
 
         // Add more materials that do NOT allow breathing here...
-        
-        return true; 
+
+        return true;
 	}
 
 	private String time_to_delta(String timestr) {
 		String[] parts = timestr.split(":");
 		Integer hh = Integer.parseInt(parts[0]);
 		Integer mm = Integer.parseInt(parts[1]);
-		
+
 		// Clamp values
 		if (hh < 0) { hh += 24; }
 		if (hh > 23) { hh -= 24; }
@@ -1194,7 +1286,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 			ms = now.getTimeInMillis() - then.getTimeInMillis();
 			//getLogger().info("The difference is "+ms+" milliseconds");
 		}
-		
+
 		// Copnvert from milliseconds to minutes and return to caller
 		Integer delta = (int) ms/(1000*60);
 		//getLogger().info("Or "+delta+" minutes");
@@ -1208,7 +1300,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 		}
 		return options;
 	}
-	
+
 	private void respond(Player p, String msg) {
 		if (p != null) {
 			p.sendMessage(msg);
@@ -1218,15 +1310,14 @@ public class TelePlugin extends JavaPlugin implements Listener {
 			console.sendMessage(msg);
 		}
 	}
-	
+
 
 	private boolean isPVP(Location loc) {
 		if (worldguard == null) { return false; }
-		
+
 		RegionManager regionManager = worldguard.getRegionManager(loc.getWorld());
 		ApplicableRegionSet set = regionManager.getApplicableRegions(loc);
 		return set.allows(DefaultFlag.PVP);
 	}
-	
-}
 
+}

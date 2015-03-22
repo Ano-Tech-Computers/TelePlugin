@@ -17,7 +17,7 @@ commands:
     permission: teleplugin.tpa
   tpy:
     description: Permit named player to teleport himself to you
-    usage: /<command> <player> 
+    usage: /<command> <player>
     permission: teleplugin.tpa
   tpn:
     description: Deny named player to teleport himself to you
@@ -53,4 +53,6 @@ commands:
   movewarp:
     description: Redefine an existing named location
     usage: /<command> <location>
-
+  listwarps:
+    description: List named locations
+    usage: /<command> [<player>] [<page>]
