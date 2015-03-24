@@ -1323,10 +1323,10 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
 	private boolean isPVP(Location loc) {
 		if (worldguard == null) { return false; }
-
-		RegionManager regionManager = worldguard.getRegionManager(loc.getWorld());
+		
+		RegionManager regionManager = worldguard.getRegionContainer().get(loc.getWorld());
 		ApplicableRegionSet set = regionManager.getApplicableRegions(loc);
-		return set.allows(DefaultFlag.PVP);
+		return set.testState(null, DefaultFlag.PVP);
 	}
 
 }
