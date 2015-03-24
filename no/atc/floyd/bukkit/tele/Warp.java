@@ -147,8 +147,9 @@ public class Warp {
 		Location loaded = null;
 		String line;
 		try {
-        	BufferedReader input =  new BufferedReader(new FileReader(this.fname()));
+        	BufferedReader input = new BufferedReader(new FileReader(this.fname()));
         	line = input.readLine();
+        	input.close();
 			String[] parts = line.split(":");
 			Double x = Double.parseDouble(parts[0]);
 			Double y = Double.parseDouble(parts[1]);
