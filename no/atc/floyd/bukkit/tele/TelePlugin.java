@@ -4,6 +4,7 @@ package no.atc.floyd.bukkit.tele;
 import org.bukkit.entity.Player;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
@@ -1120,22 +1121,22 @@ public class TelePlugin extends JavaPlugin implements Listener {
 		Boolean danger = false;
 		for (Integer check = y; check >= 0; check--) {
 			b = world.getBlockAt(x, check, z);
-			Integer type = b.getTypeId();
+			Material type = b.getType();
 
 			if (isAir(type)) {
 				needAir--;
 				continue;
 			}
-			if (type == 10 || type == 11) {
+			if (type == Material.LAVA || type == Material.STATIONARY_LAVA) {
 				player.sendMessage("§7[§6TP§7]§c Lava detected");
 				danger = true;
 				break;
 			}
-			if (type == 51) {
+			if (type == Material.FIRE) {
 				player.sendMessage("§7[§6TP§7]§c Fire detected");
 				danger = true;
 			}
-			if (type == 96) {
+			if (type == Material.TRAP_DOOR) {
 				player.sendMessage("§7[§6TP§7]§c Trapdoor detected");
 				danger = true;
 				break;
@@ -1160,111 +1161,49 @@ public class TelePlugin extends JavaPlugin implements Listener {
 		return false;
 	}
 
-	private boolean isAir(Integer type) {
-		if (type == 0)   { return true; }	// Air
-        if (type == 1)   { return false; }   // Rock
-        if (type == 2)   { return false; }   // Grass
-        if (type == 3)   { return false; }   // Dirt
-        if (type == 4)   { return false; }   // Cobblestone
-        if (type == 5)   { return false; }   // Wood
-        if (type == 7)   { return false; }   // Bedrock
-        if (type == 8)   { return false; }   // Water
-        if (type == 9)   { return false; }   // Water
-        if (type == 10)  { return false; }   // Lava
-        if (type == 11)  { return false; }   // Lava
-        if (type == 12)  { return false; }   // Sand
-        if (type == 13)  { return false; }   // Gravel
-        if (type == 14)  { return false; }   // Gold ore
-        if (type == 15)  { return false; }   // Iron ore
-        if (type == 16)  { return false; }   // Coal ore
-        if (type == 17)  { return false; }   // Tree
-        if (type == 18)  { return false; }   // Leaves
-        if (type == 19)  { return false; }   // Sponge
-        if (type == 20)  { return false; }   // Glass
-        if (type == 21)  { return false; }   // Blue ore
-        if (type == 22)  { return false; }   // Blue block
-        if (type == 23)  { return false; }   // Dispenser
-        if (type == 24)  { return false; }   // Sandstone
-        if (type == 25)  { return false; }   // Noteblock
-        if (type == 29)  { return false; }   // Piston (sticky)
-        if (type == 33)  { return false; }   // Piston
-        if (type == 35)  { return false; }   // Wool
-        if (type == 41)  { return false; }   // Gold
-        if (type == 42)  { return false; }   // Iron
-        if (type == 43)  { return false; }   // Doublestep
-        if (type == 45)  { return false; }   // Brickwall
-        if (type == 46)  { return false; }   // TNT
-        if (type == 47)  { return false; }   // Bookshelf
-        if (type == 48)  { return false; }   // Mossystone
-        if (type == 49)  { return false; }   // Obsidian
-        if (type == 52)  { return false; }   // Spawner
-        if (type == 53)  { return false; }   // Steps
-        if (type == 54)  { return false; }   // Chest
-        if (type == 56)  { return false; }   // Diamond ore
-        if (type == 57)  { return false; }   // Diamond block
-        if (type == 58)  { return false; }   // Workbench
-        if (type == 60)  { return false; }   // Dirt?
-        if (type == 61)  { return false; }   // Oven
-        if (type == 62)  { return false; }   // Oven, lit
-        if (type == 67)  { return false; }   // Stonesteps
-        if (type == 73)  { return false; }   // Redstone ore
-        if (type == 79)  { return false; }   // Ice
-        if (type == 80)  { return false; }   // Snow
-        if (type == 81)  { return false; }   // Cactus
-        if (type == 82)  { return false; }   // Clay
-        if (type == 84)  { return false; }   // Jukebox
-        if (type == 86)  { return false; }   // Pumpkin
-        if (type == 87)  { return false; }   // Nether
-        if (type == 88)  { return false; }   // Soulsand
-        if (type == 89)  { return false; }   // Lightstone
-        if (type == 90)  { return false; }   // Portalstuff?
-        if (type == 91)  { return false; }   // Pumpkin lantern
-        if (type == 95)  { return false; }   // Tinted glass
-        if (type == 97)  { return false; }   // Stone
-        if (type == 99)  { return false; }   // ?
-        if (type == 100) { return false; }   // ?
-        if (type == 103) { return false; }   // Melon
-        if (type == 108) { return false; }   // Stairs
-        if (type == 109) { return false; }   // Stairs
-        if (type == 110) { return false; }   // Slow dirt
-        if (type == 112) { return false; }   // ?
-        if (type == 114) { return false; }   // Dark steps
-        if (type == 116) { return false; }   // Altar
-        if (type == 120) { return false; }   // Ender thingy
-        if (type == 121) { return false; }   // ?
-        if (type == 122) { return false; }   // ?
-        if (type == 123) { return false; }   // Lamp
-        if (type == 125) { return false; }   // Wood again
-        if (type == 128) { return false; }   // More steps
-        if (type == 129) { return false; }   // Ore
-        if (type == 130) { return false; }   // Enderchest
-        if (type == 133) { return false; }   // Green
-        if (type == 134) { return false; }   // Steps
-        if (type == 135) { return false; }   // Steps
-        if (type == 136) { return false; }   // Steps
-        if (type == 137) { return false; }   // Command block
-        if (type == 138) { return false; }   // Display case
-        if (type == 139) { return false; }   // Wall
-        if (type == 145) { return false; }   // Anvil
-        if (type == 146) { return false; }   // Chest
-        if (type == 151) { return false; }   // Light detector
-        if (type == 152) { return false; }   // Redstone block
-        if (type == 153) { return false; }   // ?
-        if (type == 154) { return false; }   // Funnel
-        if (type == 155) { return false; }   // Quartz
-        if (type == 156) { return false; }   // Quartz steps
-        if (type == 158) { return false; }   // Dispenser
-        if (type == 159) { return false; }   // Dried clay
-        if (type == 160) { return false; }   // Window
-        if (type == 161) { return false; }   // Leaves
-        if (type == 162) { return false; }   // More tree
-        if (type == 172) { return false; }   // ?
-        if (type == 173) { return false; }   // ?
-        if (type == 174) { return false; }   // ?
+	private boolean isAir(Material type) {
+		boolean ret = !type.isSolid();
+		
+		// exceptions
+		switch (type)
+		{
+			case WATER:
+			case STATIONARY_WATER:
+			case LAVA:
+			case STATIONARY_LAVA:
+			case PORTAL:
+			// Add more non-solid materials that do NOT allow breathing here...
+				ret = false;
+				break;
+			case PISTON_EXTENSION:
+			case PISTON_MOVING_PIECE:
+			case STEP:
+			case SIGN_POST:
+			case WOODEN_DOOR:
+			case WALL_SIGN:
+			case STONE_PLATE:
+			case IRON_DOOR_BLOCK:
+			case WOOD_PLATE:
+			case FENCE:
+			case CAKE_BLOCK:
+			case TRAP_DOOR:
+			case IRON_FENCE:
+			case THIN_GLASS:
+			case FENCE_GATE:
+			case NETHER_FENCE:
+			case BREWING_STAND:
+			case CAULDRON:
+			case WOOD_STEP:
+			case GOLD_PLATE:
+			case IRON_PLATE:
+			// Add more solid materials that do allow breathing here...
+				ret = true;
+				break;
+			default:
+				break;
+		}
 
-        // Add more materials that do NOT allow breathing here...
-
-        return true;
+        return ret;
 	}
 
 	private String time_to_delta(String timestr) {
