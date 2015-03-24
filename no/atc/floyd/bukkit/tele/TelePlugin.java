@@ -16,11 +16,13 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -28,6 +30,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.bukkit.block.Block;
 import org.bukkit.command.*;
 
@@ -607,7 +612,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
               //e.printStackTrace();
               return false;
             }
-            page = Integer.parseInt(args[0])
+            page = Integer.parseInt(args[0]);
           }
           else if (args[0].equals("."))
           {
@@ -625,7 +630,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
         if (owner != null)
         {
 	        Pattern pattern = Pattern.compile("[^\\w@\\.\\'\\-]");
-	        Matcher matcher = pattern.matcher(name);
+	        Matcher matcher = pattern.matcher(owner);
 	        matcher.replaceAll("");
         }
 
@@ -678,12 +683,8 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
         return true;
       }
-
-
+      
       return false;
-    }
-
-    	return false;
     }
 
     @EventHandler
