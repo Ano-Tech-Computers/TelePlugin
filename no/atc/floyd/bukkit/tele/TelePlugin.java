@@ -620,6 +620,14 @@ public class TelePlugin extends JavaPlugin implements Listener {
         }
 
         if (page < 0) page = 0;
+        
+        // Sanitize owner name
+        if (owner != null)
+        {
+	        Pattern pattern = Pattern.compile("[^\\w@\\.\\'\\-]");
+	        Matcher matcher = pattern.matcher(name);
+	        matcher.replaceAll("");
+        }
 
         // Check permissions
         if (owner == null)
