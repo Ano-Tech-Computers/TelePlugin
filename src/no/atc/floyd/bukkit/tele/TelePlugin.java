@@ -666,7 +666,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
           dir = new File(dir, owner + "/");
 
         // List all files ending with ".loc"
-        String[] warps = dir.list(new FilenameFilter()
+        File[] warps = dir.listFiles(new FilenameFilter()
         {
           @Override
           public boolean accept(File dir, String name)
@@ -674,13 +674,18 @@ public class TelePlugin extends JavaPlugin implements Listener {
             return new File(dir, name).isFile() && name.toLowerCase().endsWith(".loc");
           }
         });
+        
+        /* warps is null if the warps/ directory does not exist (e.g. if no warps have been created yet);
+         * to avoid NullPointerException, warps is instantiated as an empty array */ 
+        if (warps == null)
+        	warps = new File[0];
 
         int pageCount = (int) Math.ceil(warps.length/10f);
-        respond(player, "§7[§6TP§7]§b Warps (page " + page + " of " + pageCount + "):");
+        respond(player, "§7[§6TP§7]§b Warps (page " + (page + 1) + " of " + pageCount + "):");
 
         int startIndex = page * 10;
         for (int i = startIndex; i < startIndex + 10 && i < warps.length; i++)
-          respond(player, "§7[§6TP§7]§9   " + warps[i]);
+          respond(player, "§7[§6TP§7]§9   " + warps[i].getName());
 
         return true;
       }
