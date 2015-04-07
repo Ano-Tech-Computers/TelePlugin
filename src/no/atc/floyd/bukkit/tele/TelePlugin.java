@@ -994,11 +994,13 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	// Unless already done this minute, record current location
     	playerlocs.putIfAbsent(minute_now, loc);
     	// Purge data older than 1 hour
-    	for (Integer minute : playerlocs.keySet()) {
-    		if (minute > minute_limit) {
-    			break;
-    		}
-    		playerlocs.remove(minute);
+    	if (playerlocs.isEmpty() == false) {
+	    	for (Integer minute : playerlocs.keySet()) {
+	    		if (minute > minute_limit) {
+	    			break;
+	    		}
+	    		playerlocs.remove(minute);
+	    	}
     	}
     }
 
@@ -1013,15 +1015,17 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
     	// Play back the last hour until we get past the moment we're looking for
 		//logger.info("[TP] Searching "+pname+"'s CHM for delta "+minutes+" (unixtime "+unixtime+")");
-    	List<Integer> keys = new ArrayList<Integer>(playerlocs.keySet());
-    	Collections.sort(keys);
-    	for (Integer minute : keys) {
-    		if (minute > minute_now) {
-        		//logger.info("[TP] "+pname+"'s next location is at "+minute+" which is past delta.");
-    			break;
-    		}
-    		//logger.info("[TP] Found "+pname+"'s location at "+minute);
-    		loc = playerlocs.get(minute);
+    	if (playerlocs.isEmpty() == false) {
+	    	List<Integer> keys = new ArrayList<Integer>(playerlocs.keySet());
+	    	Collections.sort(keys);
+	    	for (Integer minute : keys) {
+	    		if (minute > minute_now) {
+	        		//logger.info("[TP] "+pname+"'s next location is at "+minute+" which is past delta.");
+	    			break;
+	    		}
+	    		//logger.info("[TP] Found "+pname+"'s location at "+minute);
+	    		loc = playerlocs.get(minute);
+	    	}
     	}
     	return loc;
     }
@@ -1029,7 +1033,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     private Integer getOldestDelta(String pname) {
     	// Fetch this player's location table
     	ConcurrentHashMap<Integer,Location> playerlocs = locs.get(pname);
-    	if (playerlocs == null) {
+    	if (playerlocs == null || playerlocs.isEmpty()) {
     		return null;
     	}
     	List<Integer> keys = new ArrayList<Integer>(playerlocs.keySet());
@@ -1096,7 +1100,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
     private void saveLocations(String pname) {
 		ConcurrentHashMap<Integer,Location> playerlocs = locs.get(pname);
-		if (playerlocs == null) {
+		if (playerlocs == null || playerlocs.isEmpty()) {
 			getLogger().warning("Internal error: No location data to save for player "+pname);
 			return;
 		}
