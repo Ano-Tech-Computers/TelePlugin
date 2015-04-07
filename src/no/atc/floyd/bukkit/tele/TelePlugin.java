@@ -60,8 +60,19 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
 
     public void onDisable() {
-    	for (String pname : locs.keySet()) {
-    		saveLocations(pname);
+    	// Dump location info to disk if defined and non-empty
+    	if (locs == null) {
+    		getLogger().fine("onDisable: not saving undefined locs hash");
+    	} else if (locs.isEmpty()) {
+    		getLogger().fine("onDisable: not saving empty locs hash");
+    	} else {
+    		getLogger().fine("onDisable: saving locs hash");
+    		// Process location info for each player currently in memory
+	    	for (String pname : locs.keySet()) {
+	    		getLogger().fine("onDisable: saving locs for "+pname);
+	    		saveLocations(pname);
+	    	}
+			getLogger().fine("onDisable: saved locs hash");
     	}
     }
 
