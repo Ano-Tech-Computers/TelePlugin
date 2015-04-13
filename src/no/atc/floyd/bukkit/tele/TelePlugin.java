@@ -53,6 +53,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
 	private File req_dir = new File(this.getDataFolder(), "requests");
 	private File loc_dir = new File(this.getDataFolder(), "locations");
+	private File warp_dir = new File(this.getDataFolder(), "warps");
 	private final long cooldown = 86400 * 1000; // Milliseconds
 	private ConcurrentHashMap<String,ConcurrentHashMap<Integer,Location>> locs = new ConcurrentHashMap<String,ConcurrentHashMap<Integer,Location>>();
     private Integer max_tpback = 1440; // Number of MINUTES to keep
