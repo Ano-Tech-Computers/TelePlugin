@@ -147,7 +147,7 @@ public class Warp {
 		Location loaded = null;
 		String line;
 		try {
-        	BufferedReader input = new BufferedReader(new FileReader(this.file());
+        	BufferedReader input = new BufferedReader(new FileReader(this.file()));
         	line = input.readLine();
         	input.close();
 			String[] parts = line.split(":");
@@ -230,7 +230,7 @@ public class Warp {
 		try {
 			f.getParentFile().mkdirs();
 			if (f.createNewFile()) {
-	       		BufferedWriter output = new BufferedWriter(new FileWriter(f);
+	       		BufferedWriter output = new BufferedWriter(new FileWriter(f));
            		output.write( loc.getX() + ":" + loc.getY() + ":" + loc.getZ() + ":" + loc.getYaw() + ":" + loc.getPitch() + ":" + loc.getWorld().getName() + newline );
            		output.close();
     			plugin.getLogger().finest(f + " saved");
