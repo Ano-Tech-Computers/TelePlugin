@@ -14,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 public class Warp {
 	
@@ -22,12 +21,12 @@ public class Warp {
 	private String pointname = "";
 	private String worldname = "";
 	private Server server = null;
-	private Plugin plugin = null;
+	private TelePlugin plugin = null;
 	private Location loc = null;
 	private Boolean global = true;
 	private String lasterror = "";
 	
-	public Warp(String name, Player p, Plugin plu) {
+	public Warp(String name, Player p, TelePlugin plu) {
 		String[] parts;
 		// Get essentials
 		plugin = plu;
