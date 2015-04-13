@@ -73,11 +73,11 @@ public class Warp {
 	
 	public boolean exists() {
 		// Return true if the warp name can be resolved to a location
-		File f = new File(this.fname());
+		File f = this.file();
 		if (f.exists()) {
-			plugin.getLogger().finest(this.fname()+" exists");
+			plugin.getLogger().finest(f + " exists");
 		} else {
-			plugin.getLogger().finest(this.fname()+" does not exist");
+			plugin.getLogger().finest(f + " does not exist");
 		}
 		return f.exists();
 	}
@@ -147,7 +147,7 @@ public class Warp {
 		Location loaded = null;
 		String line;
 		try {
-        	BufferedReader input = new BufferedReader(new FileReader(this.fname()));
+        	BufferedReader input = new BufferedReader(new FileReader(this.file());
         	line = input.readLine();
         	input.close();
 			String[] parts = line.split(":");
@@ -198,14 +198,18 @@ public class Warp {
 		return loaded;
 	}
 
+	@Deprecated
 	public String fname() {
-		// Return the file name of this warp
+		return this.file().toString();
+	}
+	
+	public File file() {
 		if (ownername.equals("")) {
 			// Global warp point
-			return plugin.getDataFolder()+"/warps/"+pointname.toLowerCase()+".loc";
+			return new File(plugin.warp_dir, pointname.toLowerCase() + ".loc");
 		} else {
 			// Personal warp point
-			return plugin.getDataFolder()+"/warps/"+ownername.toLowerCase()+"/"+pointname.toLowerCase()+".loc";
+			return new File(new File(plugin.warp_dir, ownername.toLowerCase()), pointname.toLowerCase() + ".loc");
 		}
 	}
 	
@@ -221,15 +225,15 @@ public class Warp {
 	
 	public boolean create() {
 		// Write this warp point to disk
-		File f = new File(this.fname());
+		File f = this.file();
    		String newline = System.getProperty("line.separator");
 		try {
 			f.getParentFile().mkdirs();
 			if (f.createNewFile()) {
-	       		BufferedWriter output = new BufferedWriter(new FileWriter(this.fname()));
+	       		BufferedWriter output = new BufferedWriter(new FileWriter(f);
            		output.write( loc.getX() + ":" + loc.getY() + ":" + loc.getZ() + ":" + loc.getYaw() + ":" + loc.getPitch() + ":" + loc.getWorld().getName() + newline );
            		output.close();
-    			plugin.getLogger().finest(this.fname()+" saved");
+    			plugin.getLogger().finest(f + " saved");
 			}
 			return true;
 		} catch (IOException e) {
@@ -241,10 +245,10 @@ public class Warp {
 
 	public boolean delete() {
 		// Delete this warp point from disk
-		File f = new File(this.fname());
+		File f = this.file();
 		if (f.exists()) {
 			f.delete();
-			plugin.getLogger().finest(this.fname()+" deleted");
+			plugin.getLogger().finest(f + " deleted");
 			return true;
 		} else {
 			return false;
@@ -253,10 +257,10 @@ public class Warp {
 
 	public void touch() {
 		// Update the 'modified' time stamp of this warp point
-		File f = new File(this.fname());
+		File f = this.file();
 		if (f.exists()) {
 			f.setLastModified(System.currentTimeMillis());
-			plugin.getLogger().finest(this.fname()+" touched");
+			plugin.getLogger().finest(f + " touched");
 		}
 		return;
 	}
