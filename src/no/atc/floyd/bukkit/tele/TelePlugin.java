@@ -51,8 +51,8 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 public class TelePlugin extends JavaPlugin implements Listener {
     //public static Permissions Permissions = null;
 
-	private File req_dir = new File("plugins/TelePlugin/requests");
-	private File loc_dir = new File("plugins/TelePlugin/locations");
+	private File req_dir = new File(this.getDataFolder(), "requests");
+	private File loc_dir = new File(this.getDataFolder(), "locations");
 	private final long cooldown = 86400 * 1000; // Milliseconds
 	private ConcurrentHashMap<String,ConcurrentHashMap<Integer,Location>> locs = new ConcurrentHashMap<String,ConcurrentHashMap<Integer,Location>>();
     private Integer max_tpback = 1440; // Number of MINUTES to keep
@@ -661,9 +661,9 @@ public class TelePlugin extends JavaPlugin implements Listener {
           }
         }
 
-        File dir = new File(this.getDataFolder() + "/warps/");
+        File dir = new File(this.getDataFolder(), "warps");
         if (owner != null)
-          dir = new File(dir, owner + "/");
+          dir = new File(dir, owner);
 
         // List all files ending with ".loc"
         File[] warps = dir.listFiles(new FilenameFilter()
@@ -796,7 +796,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
 
     	// Create request token
-    	f = new File(req_dir.getPath() + "/" + subject + "-to-" + destination + ".requested");
+    	f = new File(req_dir, subject + "-to-" + destination + ".requested");
     	if (f.exists() && f.lastModified() + cooldown > now) {
     		// Already requested so renew quietly
     		getLogger().info(subject + " renewing /tpa request to " + destination);
@@ -826,7 +826,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	File f = null;
 
     	// Create request token
-		f = new File(req_dir.getPath() + "/" + subject + "-to-" + destination + ".requested");
+		f = new File(req_dir, subject + "-to-" + destination + ".requested");
     	f.delete();
 
     	return true;
@@ -842,11 +842,11 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
 
     	// Delete denial token, if any
-    	f = new File(req_dir.getPath() + "/" + destination + "-to-" + subject + ".denied");
+    	f = new File(req_dir, destination + "-to-" + subject + ".denied");
     	f.delete();
 
     	// Create permission token
-    	f = new File(req_dir.getPath() + "/" + destination + "-to-" + subject + ".granted");
+    	f = new File(req_dir, destination + "-to-" + subject + ".granted");
     	if (f.exists() && f.lastModified() + cooldown > now) {
     		// Already granted so renew quietly
     		getLogger().info(subject + " renewing /tpa permission for §6" + destination);
@@ -883,15 +883,15 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
 
     	// Delete permission token, if any
-    	f = new File(req_dir.getPath() + "/" + destination + "-to-" + subject + ".granted");
+    	f = new File(req_dir, destination + "-to-" + subject + ".granted");
     	f.delete();
 
     	// Delete request token, if any
-    	f = new File(req_dir.getPath() + "/" + destination + "-to-" + subject + ".requested");
+    	f = new File(req_dir, destination + "-to-" + subject + ".requested");
     	f.delete();
 
     	// Create denial token
-    	f = new File(req_dir.getPath() + "/" + destination + "-to-" + subject + ".denied");
+    	f = new File(req_dir, destination + "-to-" + subject + ".denied");
     	if (f.exists() && f.lastModified() + cooldown > now) {
     		// Already denied so renew quietly
     		getLogger().info(subject + " renewing /tpa denial for " + destination);
@@ -923,7 +923,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
 
     	// Check for valid permission token
-    	f = new File(req_dir.getPath() + "/" + subject + "-to-" + destination + ".denied");
+    	f = new File(req_dir, subject + "-to-" + destination + ".denied");
     	if (f.exists() && f.lastModified() + cooldown > now) {
     		return true;
     	} else {
@@ -941,7 +941,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
 
     	// Check for valid permission token
-    	f = new File(req_dir.getPath() + "/" + subject + "-to-" + destination + ".granted");
+    	f = new File(req_dir, subject + "-to-" + destination + ".granted");
     	if (f.exists() && f.lastModified() + cooldown > now) {
     		return true;
     	} else {
@@ -959,7 +959,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
 
     	// Check for valid request token
-    	f = new File(req_dir.getPath() + "/" + subject + "-to-" + destination + ".requested");
+    	f = new File(req_dir, subject + "-to-" + destination + ".requested");
     	if (f.exists() && f.lastModified() + cooldown > now) {
     		return true;
     	} else {
@@ -1035,8 +1035,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	Integer minute_now = (getUnixtime() / 60);
     	Integer minute_limit = minute_now - max_tpback;
     	ConcurrentHashMap<Integer,Location> playerlocs = new ConcurrentHashMap<Integer,Location>();
-    	String fname = loc_dir+"/"+pname+".dat";
-    	File file = new File(fname);
+    	File file = new File(loc_dir, pname + ".dat");
     	if (file.exists() == false) {
     		return playerlocs;
     	}
@@ -1089,9 +1088,9 @@ public class TelePlugin extends JavaPlugin implements Listener {
 			getLogger().warning("Internal error: No location data to save for player "+pname);
 			return;
 		}
-    	String fname = loc_dir+"/"+pname+".dat";
+    	File file = new File(loc_dir, pname + ".dat");
     	try {
-			FileWriter outFile = new FileWriter(fname);
+			FileWriter outFile = new FileWriter(file);
 			PrintWriter out = new PrintWriter(outFile);
 			for (Integer minute : playerlocs.keySet()) {
 				Location loc = playerlocs.get(minute);
