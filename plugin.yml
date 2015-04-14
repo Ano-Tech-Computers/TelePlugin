@@ -3,7 +3,7 @@ main: no.atc.floyd.bukkit.tele.TelePlugin
 version: 1.94
 website: http://minecraft.atc.no/plugins
 author: FloydATC
-depend: [WorldGuard]
+softdepend: [WorldGuard]
 description: >
         Basic teleport commands
 commands:
