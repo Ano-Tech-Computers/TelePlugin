@@ -691,7 +691,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
         int startIndex = page * 10;
         for (int i = startIndex; i < startIndex + 10 && i < warps.length; i++)
-          respond(player, MSG_PREFIX + ChatColor.BLUE + "   " + warps[i].getName());
+          respond(player, MSG_PREFIX + COLOR_INFO + warps[i].getName());
 
         return true;
       }
