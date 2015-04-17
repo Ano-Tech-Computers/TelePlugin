@@ -2,6 +2,7 @@ package no.atc.floyd.bukkit.tele;
 
 
 import org.bukkit.entity.Player;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -50,7 +51,11 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 */
 public class TelePlugin extends JavaPlugin implements Listener {
     //public static Permissions Permissions = null;
-
+	public static final String MSG_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "TP" + ChatColor.GRAY + "] ";
+	public static final ChatColor COLOR_INFO = ChatColor.AQUA;
+	public static final ChatColor COLOR_WARNING = ChatColor.RED;
+	public static final ChatColor COLOR_NAME = ChatColor.GOLD;
+	
 	public final File req_dir = new File(this.getDataFolder(), "requests");
 	public final File loc_dir = new File(this.getDataFolder(), "locations");
 	public final File warp_dir = new File(this.getDataFolder(), "warps");
@@ -126,10 +131,10 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
     	if (cmdname.equalsIgnoreCase("tp") && player != null && player.hasPermission("teleplugin.tp")) {
     		if (args.length == 0 || args.length > 3) {
-    			player.sendMessage("§7[§6TP§7]§b Valid syntax:");
-    			player.sendMessage("§7[§6TP§7]§b /tp <player>");
-    			player.sendMessage("§7[§6TP§7]§b /tp <x> <z>");
-    			player.sendMessage("§7[§6TP§7]§b /tp <x> <z> <world>");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Valid syntax:");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tp <player>");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tp <x> <z>");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tp <x> <z> <world>");
     			return true;
     		}
     		if (args.length == 1) {
@@ -137,7 +142,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			if (teleport(player.getName(), args[0], force)) {
     				getLogger().info(player.getName() + " teleported to " + args[0] );
     			} else {
-    				player.sendMessage("§7[§6TP§7]§c Could not teleport you to §6" + args[0]);
+    				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Could not teleport you to " + COLOR_NAME + args[0]);
     				getLogger().info(player.getName() + " could not teleport to " + args[0] );
     			}
     			return true;
@@ -152,10 +157,10 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			loc.setZ(z);
     			loc.setY(y);
     			if (safeTeleport(player, loc, force)) {
-    				player.sendMessage("§7[§6TP§7]§b Teleported you to coordinates x=" +x+ " z="+z);
+    				player.sendMessage(MSG_PREFIX + COLOR_INFO + "Teleported you to coordinates x=" +x+ " z="+z);
     				getLogger().info(player.getName() + " teleported to coordinates x=" +x+ " z="+z);
     			} else {
-    				player.sendMessage("§7[§6TP§7]§c Could not teleport you to coordinates x="+x+" z="+z);
+    				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Could not teleport you to coordinates x="+x+" z="+z);
     				getLogger().info(player.getName() + " could not teleport to coordinates x="+x+" z="+z);
     			}
     			return true;
@@ -167,7 +172,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			Integer z = Integer.parseInt(args[1]);
     			World w = player.getServer().getWorld(args[2]);
     			if (w == null) {
-    				player.sendMessage("§7[§6TP§7]§c There is no world called " + args[2]);
+    				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "There is no world called " + args[2]);
     				return true;
     			}
     			Integer y = w.getHighestBlockYAt(x, z);
@@ -176,32 +181,32 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			loc.setY(y);
     			loc.setWorld(w);
     			if (safeTeleport(player, loc, force)) {
-    				player.sendMessage("§7[§6TP§7]§b Teleported you to coordinates x=" +x+ " z="+z+ " in world "+w.getName());
+    				player.sendMessage(MSG_PREFIX + COLOR_INFO + "Teleported you to coordinates x=" +x+ " z="+z+ " in world "+w.getName());
     				getLogger().info(player.getName() + " teleported to oordinates x=" +x+ " z="+z+ " in world "+w.getName());
     			} else {
-    				player.sendMessage("§7[§6TP§7]§c Could not teleport you to oordinates x=" +x+ " z="+z+ " in world "+w.getName());
+    				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Could not teleport you to oordinates x=" +x+ " z="+z+ " in world "+w.getName());
     				getLogger().info(player.getName() + " could not teleport to oordinates x=" +x+ " z="+z+ " in world "+w.getName());
     			}
     			return true;
     		}
     	}
     	if (cmdname.equalsIgnoreCase("tphelp") && player != null) {
-			player.sendMessage("§7[§6TP§7]§b Personal teleportation commands: §c[EXPERIMENTAL]");
-			player.sendMessage("§7[§6TP§7]§6 /tpa <name>  §bRequest teleport to player");
-			player.sendMessage("§7[§6TP§7]§6 /tpy <name>  §bGrant teleport access");
-			player.sendMessage("§7[§6TP§7]§6 /tpn <name>  §bDeny teleport access");
-			player.sendMessage("§7[§6TP§7]§b Access is granted for 24 hours or until denied");
-			player.sendMessage("§7[§6TP§7]§b Repeated requests/grants/denials are ignored");
+			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Personal teleportation commands: " + COLOR_WARNING + "[EXPERIMENTAL]");
+			player.sendMessage(MSG_PREFIX + COLOR_NAME + "/tpa <name>  " + COLOR_INFO + "Request teleport to player");
+			player.sendMessage(MSG_PREFIX + COLOR_NAME + "/tpy <name>  " + COLOR_INFO + "Grant teleport access");
+			player.sendMessage(MSG_PREFIX + COLOR_NAME + "/tpn <name>  " + COLOR_INFO + "Deny teleport access");
+			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Access is granted for 24 hours or until denied");
+			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Repeated requests/grants/denials are ignored");
 			if (player != null && player.hasPermission("teleplugin.tpa") == false) {
-				player.sendMessage("§7[§6TP§7]§c You do not yet have permission to use this feature");
+				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "You do not yet have permission to use this feature");
 			}
    			return true;
     	}
     	if (cmdname.equalsIgnoreCase("tpa") && player != null && player.hasPermission("teleplugin.tpa")) {
     		force = false; // Disallowed
     		if (args.length == 0 || args.length > 1) {
-    			player.sendMessage("§7[§6TP§7]§b Valid syntax:");
-    			player.sendMessage("§7[§6TP§7]§b /tpa <player>");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Valid syntax:");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tpa <player>");
     			return true;
     		}
     		if (args.length == 1) {
@@ -213,11 +218,11 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	        	}
     	        }
     			if (target != null && target.hasPermission("teleplugin.tpa") == false) {
-    				player.sendMessage("§7[§6TP§7]§b §6" + args[0] + "§c does not yet have permission to use this feature");
+    				player.sendMessage(MSG_PREFIX + COLOR_NAME + args[0] + COLOR_WARNING + " does not yet have permission to use this feature");
     				return true;
     			}
     			if (has_denial(player.getName(), args[0])) {
-    				player.sendMessage("§7[§6TP§7]§b §6" +  args[0] + "§c has denied you teleport permission.");
+    				player.sendMessage(MSG_PREFIX + COLOR_NAME + args[0] + COLOR_WARNING + " has denied you teleport permission.");
     				return true;
     			}
     			if (has_permission(player.getName(), args[0])) {
@@ -225,14 +230,14 @@ public class TelePlugin extends JavaPlugin implements Listener {
 	    				getLogger().info(player.getName() + " teleported to " + args[0] );
 	    				cancel_request(player.getName(), args[0]);
 	    			} else {
-	    				player.sendMessage("§7[§6TP§7]§c Could not teleport you to §6" + args[0]);
+	    				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Could not teleport you to " + COLOR_NAME + args[0]);
 	    				getLogger().info(player.getName() + " could not teleport to " + args[0] );
 	    			}
     			} else {
     				if (request_permission(player.getName(), args[0])) {
-    					player.sendMessage("§7[§6TP§7]§b Requested teleport to §6" + args[0]);
+    					player.sendMessage(MSG_PREFIX + COLOR_INFO + "Requested teleport to " + COLOR_NAME + args[0]);
     				} else {
-    					player.sendMessage("§7[§6TP§7]§c Could not request teleport to §6" + args[0] + "§c at this time");
+    					player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Could not request teleport to " + COLOR_NAME + args[0] + COLOR_WARNING + " at this time");
     				}
     			}
     			return true;
@@ -242,8 +247,8 @@ public class TelePlugin extends JavaPlugin implements Listener {
     		force = false; // Disallowed
             Player target = null;
     		if (args.length == 0 || args.length > 1) {
-    			player.sendMessage("§7[§6TP§7]§b Valid syntax:");
-    			player.sendMessage("§7[§6TP§7]§b /tpy <player>");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Valid syntax:");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tpy <player>");
     			return true;
     		}
             if (args.length == 1) {
@@ -254,13 +259,13 @@ public class TelePlugin extends JavaPlugin implements Listener {
             }
     		if (args.length == 1) {
     			if (target != null && target.hasPermission("teleplugin.tpa") == false) {
-    				player.sendMessage("§7[§6TP§7]§b §6" + args[0] + "§c does not yet have permission to use this feature");
+    				player.sendMessage(MSG_PREFIX + COLOR_NAME + args[0] + COLOR_WARNING + " does not yet have permission to use this feature");
     				return true;
     			}
     			if (grant_permission(player.getName(), args[0])) {
-    				player.sendMessage("§7[§6TP§7]§b Teleport permission granted to §6" + args[0]);
+    				player.sendMessage(MSG_PREFIX + COLOR_INFO + "Teleport permission granted to " + COLOR_NAME + args[0]);
     			} else {
-					player.sendMessage("§7[§6TP§7]§c Could not grant teleport permission to §6" + args[0] + "§c at this time");
+					player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Could not grant teleport permission to " + COLOR_NAME + args[0] + COLOR_WARNING + " at this time");
     			}
 
     			if (has_request(args[0], player.getName()) && has_permission(args[0], player.getName())) {
@@ -274,32 +279,32 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
     	if (cmdname.equalsIgnoreCase("tpn") && player != null && player.hasPermission("teleplugin.tpa")) {
     		if (args.length == 0 || args.length > 1) {
-    			player.sendMessage("§7[§6TP§7]§b Valid syntax:");
-    			player.sendMessage("§7[§6TP§7]§b /tpn <player>");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Valid syntax:");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tpn <player>");
     			return true;
     		}
     		if (args.length == 1) {
     			if (deny_permission(player.getName(), args[0])) {
-    				player.sendMessage("§7[§6TP§7]§b Teleport permission denied to §6" + args[0]);
+    				player.sendMessage(MSG_PREFIX + COLOR_INFO + "Teleport permission denied to " + COLOR_NAME + args[0]);
     			} else {
-					player.sendMessage("§7[§6TP§7]§c Could not deny teleport permission to §6" + args[0] + "§c at this time");
+					player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Could not deny teleport permission to " + COLOR_NAME + args[0] + COLOR_WARNING + " at this time");
     			}
     			return true;
     		}
     	}
     	if (cmdname.equalsIgnoreCase("tphere") && player != null && player.hasPermission("teleplugin.tphere")) {
     		if (args.length == 0) {
-    			player.sendMessage("§7[§6TP§7]§b Valid syntax:");
-    			player.sendMessage("§7[§6TP§7]§b /tphere <player> [<player> ...]");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Valid syntax:");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tphere <player> [<player> ...]");
     			return true;
     		}
     		if (args.length >= 1) {
     			for (String subject : args) {
     				if (teleport(subject, player.getName(), force)) {
     					getLogger().info(player.getName() + " teleported " + args[0] + " to self");
-        				player.sendMessage("§7[§6TP§7]§b Teleported §6" + args[0] + "§b to you");
+        				player.sendMessage(MSG_PREFIX + COLOR_INFO + "Teleported " + COLOR_NAME + args[0] + COLOR_INFO + " to you");
     				} else {
-        				player.sendMessage("§7[§6TP§7]§c Could not teleport §6" + args[0] + "§c to you");
+        				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Could not teleport " + COLOR_NAME + args[0] + COLOR_WARNING + " to you");
     				}
     			}
     			return true;
@@ -307,8 +312,8 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
     	if (cmdname.equalsIgnoreCase("tpto") && (player == null || player.hasPermission("teleplugin.tpto"))) {
     		if (args.length < 2) {
-    			player.sendMessage("§7[§6TP§7]§b Valid syntax:");
-    			player.sendMessage("§7[§6TP§7]§b /tpto <to_player> <player> [<player> ...]");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Valid syntax:");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tpto <to_player> <player> [<player> ...]");
     			return true;
     		}
     		if (args.length >= 2) {
@@ -321,12 +326,12 @@ public class TelePlugin extends JavaPlugin implements Listener {
     				if (teleport(args[i], destination, force)) {
     					getLogger().info(performer + " teleported " + args[i] + " to " + destination);
         				if (player != null) {
-        					player.sendMessage("§7[§6TP§7]§b Teleported §6" + args[i] + "§b to §6" + destination);
+        					player.sendMessage(MSG_PREFIX + COLOR_INFO + "Teleported " + COLOR_NAME + args[i] + COLOR_INFO + " to " + COLOR_NAME + destination);
         				}
     				} else {
     					getLogger().info("Could not teleport " + args[i] + " to " + destination);
         				if (player != null) {
-        					player.sendMessage("§7[§6TP§7]§c Could not teleport §6" + args[i] + "§c to §6" + destination);
+        					player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Could not teleport " + COLOR_NAME + args[i] + COLOR_WARNING + " to " + COLOR_NAME + destination);
         				}
     				}
     			}
@@ -345,29 +350,29 @@ public class TelePlugin extends JavaPlugin implements Listener {
     					Player p = getServer().getPlayer(pname);
     					if (p != null) {
     						p.teleport(p.getWorld().getSpawnLocation());
-    						p.sendMessage("§7[§6TP§7]§b You were respawned by " + admin);
+    						p.sendMessage(MSG_PREFIX + COLOR_INFO + "You were respawned by " + admin);
         					getLogger().info("Player " + pname + " was respawned by " + admin);
     					}
     				}
     			} else {
-					player.sendMessage("§7[§6TP§7]§c You do not have permission to spawn other players");
+					player.sendMessage(MSG_PREFIX + COLOR_WARNING + "You do not have permission to spawn other players");
     			}
     		} else {
     			// Spawn self
     			if (player != null && player.hasPermission("teleplugin.spawn.self")) {
     				player.teleport(player.getWorld().getSpawnLocation());
-					player.sendMessage("§7[§6TP§7]§b You were respawned");
+					player.sendMessage(MSG_PREFIX + COLOR_INFO + "You were respawned");
 					getLogger().info("Player " + player.getName() + " respawned");
     			} else {
-					player.sendMessage("§7[§6TP§7]§c Spawn who?");
+					player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Spawn who?");
     			}
     		}
     	}
 */    	if (cmdname.equalsIgnoreCase("tpback") && player != null && player.hasPermission("teleplugin.tpback")) {
     		if (args.length == 0 || args.length > 2) {
-    			player.sendMessage("§7[§6TP§7]§b Valid syntax:");
-    			player.sendMessage("§7[§6TP§7]§b /tpback <minutes> [<player>]");
-    			player.sendMessage("§7[§6TP§7]§b /tpback <hh>:<mm> [<player>]");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "Valid syntax:");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tpback <minutes> [<player>]");
+    			player.sendMessage(MSG_PREFIX + COLOR_INFO + "/tpback <hh>:<mm> [<player>]");
     			return true;
     		}
     		if (args.length == 1) {
@@ -383,24 +388,24 @@ public class TelePlugin extends JavaPlugin implements Listener {
     				delta = Integer.valueOf(args[0]);
     			}
     			catch (Exception e) {
-    				player.sendMessage("§7[§6TP§7]§c Expected a number");
+    				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Expected a number");
     				//e.printStackTrace();
     				return false;
     			}
     			// Teleport back to own location
     			Location loc = getLocation(player.getName(), delta);
     			if (loc == null) {
-    				player.sendMessage("§7[§6TP§7]§c No location recorded "+delta+" minute"+(delta==1?"":"s")+" ago");
+    				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "No location recorded "+delta+" minute"+(delta==1?"":"s")+" ago");
     				Integer oldest = getOldestDelta(player.getName());
     				if (oldest != null) {
-    					player.sendMessage("§7[§6TP§7]§c The earliest location is "+oldest+" minute"+(oldest==1?"":"s")+" old");
+    					player.sendMessage(MSG_PREFIX + COLOR_WARNING + "The earliest location is "+oldest+" minute"+(oldest==1?"":"s")+" old");
     				}
     			} else {
     				if (safeTeleport(player, loc, force)) {
     					getLogger().info(player.getName() + " teleported "+delta+" minute"+(delta==1?"":"s")+" back");
-    					player.sendMessage("§7[§6TP§7]§b Teleported you "+delta+" minute"+(delta==1?"":"s")+" back");
+    					player.sendMessage(MSG_PREFIX + COLOR_INFO + "Teleported you "+delta+" minute"+(delta==1?"":"s")+" back");
     				} else {
-        				player.sendMessage("§7[§6TP§7]§c Teleport to "+delta+" minute"+(delta==1?"":"s")+" ago failed");
+        				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Teleport to "+delta+" minute"+(delta==1?"":"s")+" ago failed");
     				}
     			}
 				return true;
@@ -416,7 +421,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     				delta = Integer.valueOf(args[0]);
     			}
     			catch (Exception e) {
-    				player.sendMessage("§7[§6TP§7]§c Expected a number");
+    				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Expected a number");
     				//e.printStackTrace();
     				return false;
     			}
@@ -430,17 +435,17 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			// Teleport back to player's location
     			Location loc = getLocation(pname, delta);
     			if (loc == null) {
-    				player.sendMessage("§7[§6TP§7]§c No location recorded for §6"+pname+"§c "+delta+" minute"+(delta==1?"":"s")+" ago");
+    				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "No location recorded for " + COLOR_NAME+pname+COLOR_WARNING + " "+delta+" minute"+(delta==1?"":"s")+" ago");
     				Integer oldest = getOldestDelta(pname);
     				if (oldest != null) {
-    					player.sendMessage("§7[§6TP§7]§c The earliest location for §6"+pname+"§c is "+oldest+" minute"+(oldest==1?"":"s")+" old");
+    					player.sendMessage(MSG_PREFIX + COLOR_WARNING + "The earliest location for " + COLOR_NAME+pname+COLOR_WARNING + " is "+oldest+" minute"+(oldest==1?"":"s")+" old");
     				}
     			} else {
     				if (safeTeleport(player, loc, force)) {
     					getLogger().info(player.getName() + " teleported to where "+pname+" was "+delta+" minute"+(delta==1?"":"s")+" ago");
-    					player.sendMessage("§7[§6TP§7]§b Teleported you to where §6"+pname+"§c was "+delta+" minute"+(delta==1?"":"s")+" ago");
+    					player.sendMessage(MSG_PREFIX + COLOR_INFO + "Teleported you to where " + COLOR_NAME+pname+COLOR_WARNING + " was "+delta+" minute"+(delta==1?"":"s")+" ago");
     				} else {
-        				player.sendMessage("§7[§6TP§7]§c Teleport to where §6"+pname+"§c was "+delta+" minute"+(delta==1?"":"s")+" ago failed");
+        				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Teleport to where " + COLOR_NAME+pname+COLOR_WARNING + " was "+delta+" minute"+(delta==1?"":"s")+" ago failed");
     				}
     			}
 				return true;
@@ -450,8 +455,8 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
     	if (cmdname.equalsIgnoreCase("warp")) {
     		if (args.length == 0) {
-    			respond(player, "§7[§6TP§7]§b Syntax:");
-       			respond(player, "§7[§6TP§7]§b /warp <place> [--force|<player> [...]]");
+    			respond(player, MSG_PREFIX + COLOR_INFO + "Syntax:");
+       			respond(player, MSG_PREFIX + COLOR_INFO + "/warp <place> [--force|<player> [...]]");
     			return true;
     		}
     		Warp w = new Warp(args[0], player, this);
@@ -460,14 +465,14 @@ public class TelePlugin extends JavaPlugin implements Listener {
     				if (args.length == 1) {
     					// Warp self
     					if (player == null) {
-    						respond(player, "§7[§6TP§7]§c Must specify a player from the console");
+    						respond(player, MSG_PREFIX + COLOR_WARNING + "Must specify a player from the console");
     					} else {
 		    				if (safeTeleport(player, w.location(), force)) {
 		    					getLogger().info(player.getName() + " warped to "+args[0]);
-		    					respond(player, "§7[§6TP§7]§b Warped you to "+args[0]);
+		    					respond(player, MSG_PREFIX + COLOR_INFO + "Warped you to "+args[0]);
 		    					w.touch();
 		    				} else {
-		    					respond(player, "§7[§6TP§7]§c Warp to "+args[0]+" failed");
+		    					respond(player, MSG_PREFIX + COLOR_WARNING + "Warp to "+args[0]+" failed");
 		    				}
     					}
     				} else {
@@ -478,27 +483,27 @@ public class TelePlugin extends JavaPlugin implements Listener {
     							if (p != null) {
     								if (safeTeleport(p, w.location(), false)) {
     									getLogger().info(player.getName() + " warped "+p.getName()+" to "+args[0]);
-    			    					respond(player, "§7[§6TP§7]§b Warped "+p.getName()+" to "+args[0]);
-    			    					respond(p, "§7[§6TP§7]§b "+player.getName()+" warped you to "+w.name());
+    			    					respond(player, MSG_PREFIX + COLOR_INFO + "Warped "+p.getName()+" to "+args[0]);
+    			    					respond(p, MSG_PREFIX + COLOR_INFO + ""+player.getName()+" warped you to "+w.name());
     			    					w.touch();
     								} else {
-    			    					respond(player, "§7[§6TP§7]§c "+p.getName()+" was not warped to "+args[1]);
+    			    					respond(player, MSG_PREFIX + COLOR_WARNING + ""+p.getName()+" was not warped to "+args[1]);
     								}
     							} else {
-    		    					respond(player, "§7[§6TP§7]§c Player "+args[i]+" is not online");
+    		    					respond(player, MSG_PREFIX + COLOR_WARNING + "Player "+args[i]+" is not online");
     							}
     						}
     					} else {
     						getLogger().info(player.getName() + " warp others to "+args[0]+" denied");
-	    					respond(player, "§7[§6TP§7]§c You don't have permission to warp other players");
+	    					respond(player, MSG_PREFIX + COLOR_WARNING + "You don't have permission to warp other players");
     					}
     				}
     			} else {
     				getLogger().info(player.getName() + " warp to "+args[0]+" denied");
-        			respond(player, "§7[§6TP§7]§c You don't have permission to use warp point '"+args[0]+"'");
+        			respond(player, MSG_PREFIX + COLOR_WARNING + "You don't have permission to use warp point '"+args[0]+"'");
     			}
     		} else {
-    			respond(player, "§7[§6TP§7]§c Warp point '"+args[0]+"' not found");
+    			respond(player, MSG_PREFIX + COLOR_WARNING + "Warp point '"+args[0]+"' not found");
     		}
 
     		return true;
@@ -507,29 +512,29 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
     	if (cmdname.equalsIgnoreCase("setwarp")) {
     		if (args.length == 0 || args.length > 1) {
-    			respond(player, "§7[§6TP§7]§b Syntax:");
-       			respond(player, "§7[§6TP§7]§b /setwarp <place>");
+    			respond(player, MSG_PREFIX + COLOR_INFO + "Syntax:");
+       			respond(player, MSG_PREFIX + COLOR_INFO + "/setwarp <place>");
     			return true;
     		}
     		if (player == null) {
-       			respond(player, "§7[§6TP§7]§c You can't set a warp point from the console");
+       			respond(player, MSG_PREFIX + COLOR_WARNING + "You can't set a warp point from the console");
     			return true;
     		}
     		Warp w = new Warp(args[0], player, this);
     		if (w.exists()) {
-    			respond(player, "§7[§6TP§7]§c Warp point '"+args[0]+"' already exists");
+    			respond(player, MSG_PREFIX + COLOR_WARNING + "Warp point '"+args[0]+"' already exists");
     		} else {
     			if (w.createPermitted(player)) {
     				if (w.create()) {
     					getLogger().info(player.getName()+" created warp point "+args[0]);
-    					respond(player, "§7[§6TP§7]§b Warp point '"+args[0]+"' was created");
+    					respond(player, MSG_PREFIX + COLOR_INFO + "Warp point '"+args[0]+"' was created");
     				} else {
     					getLogger().warning("Error creating warp point '"+args[0]+"': "+w.error());
-    					respond(player, "§7[§6TP§7]§c Internal error: "+w.error());
+    					respond(player, MSG_PREFIX + COLOR_WARNING + "Internal error: "+w.error());
     				}
     			} else {
 					getLogger().warning(player.getName()+" was not permitted to create warp point "+args[0]);
-        			respond(player, "§7[§6TP§7]§c You don't have permission to create warp point '"+args[0]+"'");
+        			respond(player, MSG_PREFIX + COLOR_WARNING + "You don't have permission to create warp point '"+args[0]+"'");
     			}
     		}
     		return true;
@@ -538,8 +543,8 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
     	if (cmdname.equalsIgnoreCase("delwarp")) {
     		if (args.length == 0 || args.length > 1) {
-    			respond(player, "§7[§6TP§7]§b Syntax:");
-       			respond(player, "§7[§6TP§7]§b /delwarp <place>");
+    			respond(player, MSG_PREFIX + COLOR_INFO + "Syntax:");
+       			respond(player, MSG_PREFIX + COLOR_INFO + "/delwarp <place>");
     			return true;
     		}
     		Warp w = new Warp(args[0], player, this);
@@ -547,13 +552,13 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			if (w.deletePermitted(player)) {
     				w.delete();
 					getLogger().info(player.getName()+" deleted warp point "+args[0]);
-        			respond(player, "§7[§6TP§7]§b Warp point '"+args[0]+"' has now been deleted");
+        			respond(player, MSG_PREFIX + COLOR_INFO + "Warp point '"+args[0]+"' has now been deleted");
     			} else {
     				getLogger().warning(player.getName()+" was not permitted to delete warp point "+args[0]);
-        			respond(player, "§7[§6TP§7]§c You don't have permission to delete warp point '"+args[0]+"'");
+        			respond(player, MSG_PREFIX + COLOR_WARNING + "You don't have permission to delete warp point '"+args[0]+"'");
     			}
     		} else {
-    			respond(player, "§7[§6TP§7]§c Warp point '"+args[0]+"' does not exist");
+    			respond(player, MSG_PREFIX + COLOR_WARNING + "Warp point '"+args[0]+"' does not exist");
     		}
     		return true;
     	}
@@ -561,12 +566,12 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
     	if (cmdname.equalsIgnoreCase("movewarp")) {
     		if (args.length == 0 || args.length > 1) {
-    			respond(player, "§7[§6TP§7]§b Syntax:");
-       			respond(player, "§7[§6TP§7]§b /movewarp <place>");
+    			respond(player, MSG_PREFIX + COLOR_INFO + "Syntax:");
+       			respond(player, MSG_PREFIX + COLOR_INFO + "/movewarp <place>");
     			return true;
     		}
     		if (player == null) {
-       			respond(player, "§7[§6TP§7]§c You can't move a warp point from the console");
+       			respond(player, MSG_PREFIX + COLOR_WARNING + "You can't move a warp point from the console");
     			return true;
     		}
     		Warp w = new Warp(args[0], player, this);
@@ -574,17 +579,17 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			if (w.movePermitted(player)) {
     				if (w.delete() && w.create()) {
     					getLogger().info(player.getName()+" moved warp point "+args[0]);
-    					respond(player, "§7[§6TP§7]§b Warp point '"+args[0]+"' was moved");
+    					respond(player, MSG_PREFIX + COLOR_INFO + "Warp point '"+args[0]+"' was moved");
     				} else {
     					getLogger().warning("Error moving warp point"+args[0]+": "+w.error());
-    					respond(player, "§7[§6TP§7]§c Internal error: "+w.error());
+    					respond(player, MSG_PREFIX + COLOR_WARNING + "Internal error: "+w.error());
     				}
     			} else {
     				getLogger().warning(player.getName()+" was not permitted to move warp point "+args[0]);
-        			respond(player, "§7[§6TP§7]§c You don't have permission to move warp point '"+args[0]+"'");
+        			respond(player, MSG_PREFIX + COLOR_WARNING + "You don't have permission to move warp point '"+args[0]+"'");
     			}
     		} else {
-    			respond(player, "§7[§6TP§7]§c Warp point '"+args[0]+"' does not exist");
+    			respond(player, MSG_PREFIX + COLOR_WARNING + "Warp point '"+args[0]+"' does not exist");
     		}
     		return true;
     	}
@@ -594,8 +599,8 @@ public class TelePlugin extends JavaPlugin implements Listener {
       {
         if (args.length > 2)
         {
-          respond(player, "§7[§6TP§7]§b Syntax:");
-          respond(player, "§7[§6TP§7]§b /listwarps [<player>] [<page>]");
+          respond(player, MSG_PREFIX + COLOR_INFO + "Syntax:");
+          respond(player, MSG_PREFIX + COLOR_INFO + "/listwarps [<player>] [<page>]");
           return true;
         }
 
@@ -610,7 +615,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
               page = Integer.parseInt(args[0]) - 1;
             }
             catch (NumberFormatException e) {
-              player.sendMessage("§7[§6TP§7]§c Expected a number");
+              player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Expected a number");
               //e.printStackTrace();
               return false;
             }
@@ -642,7 +647,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
           if (!player.hasPermission("teleplugin.listwarps.global"))
           {
             getLogger().warning(player.getName() + " was not permitted to list global warp points");
-            respond(player, "§7[§6TP§7]§c You don't have permission to list these warp points");
+            respond(player, MSG_PREFIX + COLOR_WARNING + "You don't have permission to list these warp points");
           }
         }
         else if (owner.equalsIgnoreCase(player.getName()))
@@ -650,7 +655,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
           if (!player.hasPermission("teleplugin.listwarps.own"))
           {
             getLogger().warning(player.getName() + " was not permitted to list own warp points");
-            respond(player, "§7[§6TP§7]§c You don't have permission to list these warp points");
+            respond(player, MSG_PREFIX + COLOR_WARNING + "You don't have permission to list these warp points");
           }
         }
         else
@@ -658,7 +663,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
           if (!player.hasPermission("teleplugin.listwarps.other"))
           {
             getLogger().warning(player.getName() + " was not permitted to list " + owner + "'s warp points");
-            respond(player, "§7[§6TP§7]§c You don't have permission to list these warp points");
+            respond(player, MSG_PREFIX + COLOR_WARNING + "You don't have permission to list these warp points");
           }
         }
 
@@ -682,11 +687,11 @@ public class TelePlugin extends JavaPlugin implements Listener {
         	warps = new File[0];
 
         int pageCount = (int) Math.ceil(warps.length/10f);
-        respond(player, "§7[§6TP§7]§b Warps (page " + (page + 1) + " of " + pageCount + "):");
+        respond(player, MSG_PREFIX + COLOR_INFO + "Warps (page " + (page + 1) + " of " + pageCount + "):");
 
         int startIndex = page * 10;
         for (int i = startIndex; i < startIndex + 10 && i < warps.length; i++)
-          respond(player, "§7[§6TP§7]§9   " + warps[i].getName());
+          respond(player, MSG_PREFIX + COLOR_INFO + warps[i].getName());
 
         return true;
       }
@@ -746,13 +751,13 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	}
     	if (player.hasPermission("teleplugin.enter.any") == false && player.hasPermission("teleplugin.enter." + to_world) == false) {
     		getLogger().info(pname + " was denied access to enter world '" + to_world + "'");
-			player.sendMessage("§7[§6TP§7]§c You are not allowed to enter " + to_world + "§c this way");
+			player.sendMessage(MSG_PREFIX + COLOR_WARNING + "You are not allowed to enter " + to_world + COLOR_WARNING + " this way");
     		event.setCancelled(true);
         	return;
     	}
     	if (player.hasPermission("teleplugin.leave.any") == false && player.hasPermission("teleplugin.leave." + from_world) == false) {
     		getLogger().info(pname + " was denied access to leave world '" + from_world + "'");
-			player.sendMessage("§7[§6TP§7]§c You are not allowed to leave " + to_world + "§c this way");
+			player.sendMessage(MSG_PREFIX + COLOR_WARNING + "You are not allowed to leave " + to_world + COLOR_WARNING + " this way");
     		event.setCancelled(true);
         	return;
     	}
@@ -770,10 +775,10 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	if (subj != null && dest != null) {
     		Location loc = dest.getLocation();
     		if (safeTeleport(subj, loc, force)) {
-        		subj.sendMessage("§7[§6TP§7]§b Teleporting you to §6" + dest.getName());
+        		subj.sendMessage(MSG_PREFIX + COLOR_INFO + "Teleporting you to " + COLOR_NAME + dest.getName());
     			return true;
     		} else {
-        		subj.sendMessage("§7[§6TP§7]§c Teleport to §6" + dest.getName() + "§c failed");
+        		subj.sendMessage(MSG_PREFIX + COLOR_WARNING + "Teleport to " + COLOR_NAME + dest.getName() + COLOR_WARNING + " failed");
     			return false;
     		}
     	} else {
@@ -810,7 +815,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			getLogger().info(subject + " sending new /tpa request to " + destination);
 	    		try {
 					f.createNewFile();
-		    		p.sendMessage("§7[§6TP§7]§b §6" + subject + "§b has requested /tpa permission (See '/tphelp')");
+		    		p.sendMessage(MSG_PREFIX + COLOR_NAME + subject + COLOR_INFO + " has requested /tpa permission (See '/tphelp')");
 				} catch (IOException e) {
 					e.printStackTrace();
 					getLogger().warning("Unexpected error creating "+f.getName()+": "+e.getLocalizedMessage());
@@ -850,7 +855,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     	f = new File(req_dir, destination + "-to-" + subject + ".granted");
     	if (f.exists() && f.lastModified() + cooldown > now) {
     		// Already granted so renew quietly
-    		getLogger().info(subject + " renewing /tpa permission for §6" + destination);
+    		getLogger().info(subject + " renewing /tpa permission for " + COLOR_NAME + destination);
     		f.setLastModified(now);
     		return true;
     	} else {
@@ -860,7 +865,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     			getLogger().info(subject + " granting new /tpa permission for " + destination);
 				try {
 					f.createNewFile();
-		    		p.sendMessage("§7[§6TP§7]§b §6" + subject + "§b has granted you /tpa permission (See '/tphelp')");
+		    		p.sendMessage(MSG_PREFIX + COLOR_NAME + subject + COLOR_INFO + " has granted you /tpa permission (See '/tphelp')");
 
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -904,7 +909,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
     		getLogger().info(subject + " creating new /tpa denial for " + destination);
 			try {
 				f.createNewFile();
-	    		p.sendMessage("§7[§6TP§7]§b §6" + subject + "§c has denied you /tpa permission (See '/tphelp')");
+	    		p.sendMessage(MSG_PREFIX + COLOR_NAME + subject + COLOR_WARNING + " has denied you /tpa permission (See '/tphelp')");
 			} catch (IOException e) {
 				e.printStackTrace();
 				getLogger().warning("Unexpected error creating "+f.getName()+": "+e.getLocalizedMessage());
@@ -1113,7 +1118,7 @@ public class TelePlugin extends JavaPlugin implements Listener {
 
 	private boolean safeTeleport(Player player, Location location, Boolean force) {
 		if (location == null) {
-			player.sendMessage("§7[§6TP§7]§c Invalid location");
+			player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Invalid location");
 			return false;
 		}
 		Integer x = location.getBlockX();
@@ -1133,34 +1138,34 @@ public class TelePlugin extends JavaPlugin implements Listener {
 				continue;
 			}
 			if (type == Material.LAVA || type == Material.STATIONARY_LAVA) {
-				player.sendMessage("§7[§6TP§7]§c Lava detected");
+				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Lava detected");
 				danger = true;
 				break;
 			}
 			if (type == Material.FIRE) {
-				player.sendMessage("§7[§6TP§7]§c Fire detected");
+				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Fire detected");
 				danger = true;
 			}
 			if (type == Material.TRAP_DOOR) {
-				player.sendMessage("§7[§6TP§7]§c Trapdoor detected");
+				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Trapdoor detected");
 				danger = true;
 				break;
 			}
 			if (needAir > 0) {
-				player.sendMessage("§7[§6TP§7]§c Blocked location detected ("+b.getType().name()+")");
+				player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Blocked location detected ("+b.getType().name()+")");
 				danger = true;
 			}
 			break; // Found a safe platform
 		}
 		if (isPVP(location)) {
-			player.sendMessage("§7[§6TP§7]§c Player vs Player (PVP) region detected");
+			player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Player vs Player (PVP) region detected");
 			danger = true;
 		}
 		if (danger == false) {
 			return player.teleport(location);
 		} else if (force == true) {
 			getLogger().info(player.getName() + " used the safety override");
-			player.sendMessage("§7[§6TP§7]§c Safety override (-force) is in effect");
+			player.sendMessage(MSG_PREFIX + COLOR_WARNING + "Safety override (-force) is in effect");
 			return player.teleport(location);
 		}
 		return false;
