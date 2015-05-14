@@ -1,11 +1,11 @@
-name: TelePlugin
+name: "${project.name}"
 main: no.atc.floyd.bukkit.tele.TelePlugin
-version: 1.94
-website: http://minecraft.atc.no/plugins
+version: "${project.version}"
+website: "${project.url}"
 author: FloydATC
 softdepend: [WorldGuard]
-description: >
-        Basic teleport commands
+description: "${project.description}"
+
 commands:
   tp:
     description: Teleport yourself to a named player
